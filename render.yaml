@@ -1,0 +1,32 @@
+# Render Configuration for AutoEats Backend
+
+This file contains instructions for deploying the AutoEats backend to Render.com.
+
+## Service Configuration
+
+- **Service Type**: Web Service
+- **Name**: autoeats-backend
+- **Runtime**: Node
+- **Build Command**: npm install
+- **Start Command**: node server.js
+- **Plan**: Free (Starter)
+
+## Environment Variables
+
+The following environment variables need to be configured in the Render dashboard:
+
+```
+MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/autoeats?retryWrites=true&w=majority
+JWT_SECRET=your_production_jwt_secret_key_here
+PORT=10000
+NODE_ENV=production
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_whatsapp_number
+```
+
+Note: Render automatically assigns a port, but we set PORT=10000 as a fallback.
+
+## Auto-Deploy
+
+Enable auto-deploy from GitHub for continuous deployment.
