@@ -1,7 +1,60 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Restaurant = require('../models/Restaurant');
+
+// @route   POST /api/restaurants/register
+// @desc    Register a new restaurant
+// @access  Public
+router.post('/register', async (req, res) => {
+  const { name, email, password, phone } = req.body;
+
+  try {
+    // Check if restaurant already exists
+    let existing = await Restaurant.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'Restaurant already exists' });
+    }
+
+    // Create new restaurant
+    const restaurant = new Restaurant({
+      name,
+      email,
+      password,
+      phone,
+      isProfileComplete: false // default
+    });
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    restaurant.password = await bcrypt.hash(password, salt);
+
+    // Save to DB
+    await restaurant.save();
+
+    // Create JWT payload
+    const payload = {
+      restaurant: { id: restaurant.id }
+    };
+
+    // Sign token and return
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // @route   PUT /api/restaurants/profile
 // @desc    Update restaurant profile
